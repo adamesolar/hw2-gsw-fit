@@ -1,0 +1,42 @@
+[project]
+name = "HW 2 GSW Yield Curve Fits"
+description = "Nelson-Siegel-Svensson parameters fitted to CRSP Treasury quotes on four dates (FINM 32800 HW 2), with the Federal Reserve's published GSW parameters for the same dates. Derived quantities only."
+contributors = ["Adam Solar"]
+repo_url = "https://github.com/adamesolar/hw2-gsw-fit"
+copyright = "2026"
+os_compatibility = ["Windows", "Linux", "macOS"]
+requires_chartbook = ">=0.5.0"
+
+[dataframes.gsw_fit_params]
+name = "GSW Fit Parameters on Four Dates"
+description = "One row per date: the Nelson-Siegel-Svensson parameters fitted to CRSP Treasury quotes, the Fed's published parameters, and fit statistics."
+sources = ["CRSP", "Federal Reserve"]
+providers = ["WRDS", "Federal Reserve Board"]
+provider_links = [
+    "https://wrds-www.wharton.upenn.edu/",
+    "https://www.federalreserve.gov/data/nominal-yield-curve.htm",
+]
+tags = ["yield_curve", "treasury", "interest_rates"]
+pull_method = "Committed CSV, computed by the FINM 32800 HW 2 pipeline (src/calc_gsw_fits.py) from CRSP via WRDS"
+path = "gsw_fit_params.csv"
+date_col = "quote_date"
+docs = """One row per quote date: three validation dates (1990-06-05,
+2000-06-05, 2024-06-03) and the latest date common to CRSP and the Fed's
+series (2025-12-31), marked in `role`.
+
+`tau1`, `tau2`, `beta1` to `beta4` are the Nelson-Siegel-Svensson parameters
+fitted to CRSP Treasury prices following Gurkaynak, Sack, and Wright (2006);
+`fed_*` are the Federal Reserve's published parameters for the same date. The
+betas are in decimals and the taus in years. The zero-coupon yield at maturity
+t (years), continuously compounded, is
+
+    y(t) = beta1 + beta2 * L1 + beta3 * (L1 - exp(-t/tau1))
+                 + beta4 * (L2 - exp(-t/tau2)),
+
+with L1 = (1 - exp(-t/tau1)) / (t/tau1) and L2 likewise with tau2.
+
+`n_bonds` is the number of bonds in the fit, `mse` its mean squared pricing
+error, and `max_abs_pct_vs_actual` and `max_abs_pct_vs_gsw` the largest
+absolute price gaps, in percent, against actual prices and against the
+Fed's curve. No CRSP quotes are published here: only quantities computed
+from them."""
